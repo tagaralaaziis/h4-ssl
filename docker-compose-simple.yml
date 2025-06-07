@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  noc-monitoring-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - VITE_SOCKET_SERVER=https://dev-suhu.umm.ac.id
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./nginx-simple.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - noc-network
+    depends_on:
+      - noc-monitoring-backend
+
+  noc-monitoring-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.simple
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - MYSQL_HOST=10.10.11.27
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=bismillah123
+      - MYSQL_DATABASE=suhu
+      - HTTP_PORT=3000
+      - HTTPS_PORT=3001
+      - CORS_ORIGIN=https://dev-suhu.umm.ac.id
+      - JWT_SECRET=noc-monitoring-jwt-secret-2024
+    volumes:
+      - ./certs:/app/certs:ro
+    networks:
+      - noc-network
+
+networks:
+  noc-network:
+    driver: bridge
