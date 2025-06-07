@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  noc-monitoring-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - VITE_SOCKET_SERVER=http://10.10.1.25:3000
+    networks:
+      - noc-network
+
+  noc-monitoring-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - MYSQL_HOST=10.10.11.27
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=bismillah123
+      - MYSQL_DATABASE=suhu
+      - PORT=3000
+      - CORS_ORIGIN=http://10.10.1.25
+    networks:
+      - noc-network
+
+networks:
+  noc-network:
+    driver: bridge
